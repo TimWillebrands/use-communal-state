@@ -1,6 +1,6 @@
 {
   "name": "use-communal-state",
-  "private": true,
+  "private": false,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
@@ -23,9 +23,22 @@
       "npm run format"
     ]
   },
-  "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/use-communal-state.es.js",
+      "require": "./dist/use-communal-state.umd.js"
+    },
+    "./dist/style.css": "./dist/style.css"
+  },
+  "main": "./dist/use-communal-state.umd.js",
+  "module": "./dist/use-communal-state.es.js",
+  "types": "./dist/index.d.ts",
+  "peerDependencies": {
+    "react": "16.8.0 || >=17.x",
+    "react-dom": "16.8.0 || >=17.x"
   },
   "devDependencies": {
     "@types/react": "^18.0.27",
@@ -43,6 +56,24 @@
     "prettier": "^2.8.4",
     "react-hooks": "^1.0.1",
     "typescript": "^4.9.3",
-    "vite": "^4.1.0"
-  }
+    "vite": "^4.1.0",
+    "vite-plugin-dts": "^2.1.0",
+    "vite-plugin-linter": "^2.0.2",
+    "vite-tsconfig-paths": "^4.0.5"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TimWillebrands/use-communal-state"
+  },
+  "keywords": [
+    "state",
+    "multiplayer",
+    "shared"
+  ],
+  "author": "tim willebrands",
+  "bugs": {
+    "url": "https://github.com/TimWillebrands/use-communal-state/issues"
+  },
+  "homepage": "https://github.com/TimWillebrands/use-communal-state#readme",
+  "license": "MIT"
 }
