@@ -38,7 +38,8 @@
   "types": "./dist/index.d.ts",
   "peerDependencies": {
     "react": "16.8.0 || >=17.x",
-    "react-dom": "16.8.0 || >=17.x"
+    "react-dom": "16.8.0 || >=17.x",
+    "yjs": "^13.5.48"
   },
   "devDependencies": {
     "@types/react": "^18.0.27",
