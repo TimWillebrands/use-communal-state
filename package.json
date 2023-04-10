@@ -39,7 +39,8 @@
   "peerDependencies": {
     "react": "16.8.0 || >=17.x",
     "react-dom": "16.8.0 || >=17.x",
-    "yjs": "^13.5.48"
+    "yjs": "^13.5.48",
+    "y-websocket": "^1.5.0"
   },
   "devDependencies": {
     "@types/react": "^18.0.27",
