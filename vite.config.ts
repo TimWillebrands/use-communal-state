@@ -9,26 +9,26 @@ const { EsLinter, linterPlugin } = EsLint
 import * as packageJson from './package.json'
 // https://vitejs.dev/config/
 export default defineConfig((configEnv) => ({
-  plugins: [
-    react(),
-    tsConfigPaths(),
-    linterPlugin({
-      include: ['./src}/**/*.{ts,tsx}'],
-      linters: [new EsLinter({ configEnv })],
-    }),
-    dts({
-      include: ['src/component/'],
-    }),
-  ],
-  build: {
-    lib: {
-      entry: resolve('src', 'index.ts'),
-      name: 'UseCommunalState',
-      formats: ['es', 'umd'],
-      fileName: (format) => `use-communal-state.${format}.js`,
+    plugins: [
+        react(),
+        tsConfigPaths(),
+        linterPlugin({
+            include: ['./src}/**/*.{ts,tsx}'],
+            linters: [new EsLinter({ configEnv })],
+        }),
+        dts({
+            include: ['src/component/'],
+        }),
+    ],
+    build: {
+        lib: {
+            entry: resolve('src', 'index.ts'),
+            name: 'UseCommunalState',
+            formats: ['es', 'umd'],
+            fileName: (format) => `use-communal-state.${format}.js`,
+        },
+        rollupOptions: {
+            external: [...Object.keys(packageJson.peerDependencies)],
+        },
     },
-    rollupOptions: {
-      external: [...Object.keys(packageJson.peerDependencies)],
-    },
-  },
 }))

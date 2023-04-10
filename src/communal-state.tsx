@@ -1,29 +1,38 @@
-import { Dispatch, SetStateAction, useState, ReactNode, useContext } from 'react'
+import { useState, ReactNode, useContext, useMemo, useSyncExternalStore, useCallback } from 'react'
 import { createContext } from 'react'
-import { YjsClient } from './yjs-client'
+import { notifyManager } from './notificationManager'
+import { Path } from './utilsAndTypes'
+import { YjsClient, SharedTypeObserver } from './yjs-client'
 
-const Context = createContext<Readonly<YjsClient> | undefined>(undefined)
+const Context = createContext<YjsClient | undefined>(undefined)
 
 type CommunalStateProviderProps = {
+    roomName: string
+    port?: number
     children?: ReactNode
 }
 
-const yjsClient = Object.freeze(new YjsClient('test-room'))
+export function CommunalStateProvider({ children, roomName, port }: CommunalStateProviderProps) {
+    const yjsClient = useMemo(() => new YjsClient(roomName, port), [roomName, port])
 
-export function CommunalStateProvider({ children }: CommunalStateProviderProps) {
     return <Context.Provider value={yjsClient}>{children}</Context.Provider>
 }
 
-export function useCommunalState<S>(
-    resourcePath: string,
-    initialState: S | (() => S),
-): [S, Dispatch<SetStateAction<S>>] {
+export function useCommunalState<S>(path: Path) {
     const client = useContext(Context)
 
     if (client === undefined) throw 'No communalstateprovider found!'
-    const state = useState(initialState)
 
-    console.log('much wow', resourcePath)
+    const [observer] = useState(() => new SharedTypeObserver<S>(client, { path: path }))
 
-    return state
+    const result = useSyncExternalStore(
+        useCallback(
+            (onStoreChange) => observer.subscribe(notifyManager.batchCalls(onStoreChange)),
+            [observer],
+        ),
+        () => observer.getCurrentResult(),
+        () => observer.getCurrentResult(),
+    )
+
+    return [result, () => console.log('hi')] as const
 }

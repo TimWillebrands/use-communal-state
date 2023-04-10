@@ -1,81 +1,81 @@
 {
-  "name": "use-communal-state",
-  "private": false,
-  "version": "0.0.2",
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview",
-    "lint": "eslint 'src/**/*.{js,jsx,ts,tsx}'",
-    "lint:fix": "eslint --fix 'src/**/*.{jsx,ts,tsx}'",
-    "format": "prettier --write src//**/*.{ts,tsx,css} --config ./.prettierrc",
-    "prepare": "husky install"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
-  "lint-staged": {
-    "src/**/*.{js,jsx,ts,tsx}": [
-      "npm run lint",
-      "npm run format"
-    ]
-  },
-  "files": [
-    "dist"
-  ],
-  "exports": {
-    ".": {
-      "import": "./dist/use-communal-state.es.js",
-      "require": "./dist/use-communal-state.umd.js"
+    "name": "use-communal-state",
+    "private": false,
+    "version": "0.0.2",
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "tsc && vite build",
+        "preview": "vite preview",
+        "lint": "eslint 'src/**/*.{js,jsx,ts,tsx}'",
+        "lint:fix": "eslint --fix 'src/**/*.{jsx,ts,tsx}'",
+        "format": "prettier --write src//**/*.{ts,tsx,css} --config ./.prettierrc",
+        "prepare": "husky install"
     },
-    "./dist/style.css": "./dist/style.css"
-  },
-  "main": "./dist/use-communal-state.umd.js",
-  "module": "./dist/use-communal-state.es.js",
-  "types": "./dist/index.d.ts",
-  "peerDependencies": {
-    "react": "16.8.0 || >=17.x",
-    "react-dom": "16.8.0 || >=17.x",
-    "yjs": "^13.5.48",
-    "y-websocket": "^1.5.0"
-  },
-  "devDependencies": {
-    "@types/react": "^18.0.27",
-    "@types/react-dom": "^18.0.10",
-    "@typescript-eslint/eslint-plugin": "^5.54.1",
-    "@typescript-eslint/parser": "^5.54.1",
-    "@vitejs/plugin-react": "^3.1.0",
-    "eslint": "^8.35.0",
-    "eslint-plugin-prettier": "^4.2.1",
-    "eslint-plugin-react": "^7.32.2",
-    "eslint-plugin-react-hooks": "^4.6.0",
-    "eslint-plugin-simple-import-sort": "^10.0.0",
-    "husky": "^8.0.3",
-    "lint-staged": "^13.1.2",
-    "prettier": "^2.8.4",
-    "react-hooks": "^1.0.1",
-    "typescript": "^4.9.3",
-    "vite": "^4.1.0",
-    "vite-plugin-dts": "^2.1.0",
-    "vite-plugin-linter": "^2.0.2",
-    "vite-tsconfig-paths": "^4.0.5"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/TimWillebrands/use-communal-state"
-  },
-  "keywords": [
-    "state",
-    "multiplayer",
-    "shared"
-  ],
-  "author": "tim willebrands",
-  "bugs": {
-    "url": "https://github.com/TimWillebrands/use-communal-state/issues"
-  },
-  "homepage": "https://github.com/TimWillebrands/use-communal-state#readme",
-  "license": "MIT"
+    "husky": {
+        "hooks": {
+            "pre-commit": "lint-staged"
+        }
+    },
+    "lint-staged": {
+        "src/**/*.{js,jsx,ts,tsx}": [
+            "npm run lint",
+            "npm run format"
+        ]
+    },
+    "files": [
+        "dist"
+    ],
+    "exports": {
+        ".": {
+            "import": "./dist/use-communal-state.es.js",
+            "require": "./dist/use-communal-state.umd.js"
+        },
+        "./dist/style.css": "./dist/style.css"
+    },
+    "main": "./dist/use-communal-state.umd.js",
+    "module": "./dist/use-communal-state.es.js",
+    "types": "./dist/index.d.ts",
+    "peerDependencies": {
+        "react": "16.8.0 || >=17.x",
+        "react-dom": "16.8.0 || >=17.x",
+        "yjs": "^13.5.48",
+        "y-websocket": "^1.5.0"
+    },
+    "devDependencies": {
+        "@types/react": "^18.0.27",
+        "@types/react-dom": "^18.0.10",
+        "@typescript-eslint/eslint-plugin": "^5.54.1",
+        "@typescript-eslint/parser": "^5.54.1",
+        "@vitejs/plugin-react": "^3.1.0",
+        "eslint": "^8.35.0",
+        "eslint-plugin-prettier": "^4.2.1",
+        "eslint-plugin-react": "^7.32.2",
+        "eslint-plugin-react-hooks": "^4.6.0",
+        "eslint-plugin-simple-import-sort": "^10.0.0",
+        "husky": "^8.0.3",
+        "lint-staged": "^13.1.2",
+        "prettier": "^2.8.4",
+        "react-hooks": "^1.0.1",
+        "typescript": "^4.9.3",
+        "vite": "^4.1.0",
+        "vite-plugin-dts": "^2.1.0",
+        "vite-plugin-linter": "^2.0.2",
+        "vite-tsconfig-paths": "^4.0.5"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/TimWillebrands/use-communal-state"
+    },
+    "keywords": [
+        "state",
+        "multiplayer",
+        "shared"
+    ],
+    "author": "tim willebrands",
+    "bugs": {
+        "url": "https://github.com/TimWillebrands/use-communal-state/issues"
+    },
+    "homepage": "https://github.com/TimWillebrands/use-communal-state#readme",
+    "license": "MIT"
 }

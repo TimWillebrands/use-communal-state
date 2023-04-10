@@ -6,10 +6,11 @@ import { Removable } from './removable'
 import { hashPath, Path } from './utilsAndTypes'
 
 export class YjsClient {
-    private doc: Y.Doc
-    private wsProvider: WebsocketProvider
+    public readonly doc: Y.Doc
+    private readonly provider: WebsocketProvider
+    private readonly cache: SharedTypeCache
 
-    constructor(roomName: string, port?: number) {
+    constructor(roomName: string, port?: number | string) {
         const protocol = location.protocol.includes('https') ? 'wss:' : 'ws:'
 
         const hostName =
@@ -18,7 +19,13 @@ export class YjsClient {
                 : `${protocol}//${location.hostname}`
 
         this.doc = new Y.Doc()
-        this.wsProvider = new WebsocketProvider(hostName, roomName, this.doc)
+        this.provider = new WebsocketProvider(hostName, roomName, this.doc)
+        this.cache = new SharedTypeCache()
+        //this.provider.connect()
+    }
+
+    getCache() {
+        return this.cache
     }
 }
 
@@ -163,11 +170,14 @@ class SharedTypeCache extends Subscribable<SharedTypeCacheListener> {
 
 type SharedTypeObserverListener<TData> = (result: { data: TData }) => void
 
-class SharedTypeObserver<TData = unknown> extends Subscribable<SharedTypeObserverListener<TData>> {
+export class SharedTypeObserver<TData = unknown> extends Subscribable<
+    SharedTypeObserverListener<TData>
+> {
     private readonly client: YjsClient //eslint-disable-line
 
     private sharedType!: SharedType<TData>
     private options: SharedTypeOptions //eslint-disable-line
+    private result?: TData
 
     constructor(client: YjsClient, options: SharedTypeOptions) {
         super()
@@ -196,8 +206,29 @@ class SharedTypeObserver<TData = unknown> extends Subscribable<SharedTypeObserve
         }
     }
 
+    getCurrentResult() {
+        return this.result
+    }
+
     setOptions(options: SharedTypeOptions) {
         this.options = options
+        const sharedType = this.client.getCache().build<TData>(this.client, this.options)
+
+        if (sharedType === this.sharedType) {
+            return
+        }
+
+        //const prevQuery = this.currentQuery as
+        //    | Query<TQueryFnData, TError, TQueryData, TQueryKey>
+        //    | undefined
+        this.sharedType = sharedType
+        // this.currentQueryInitialState = query.state
+        // this.previousQueryResult = this.currentResult
+
+        if (this.hasListeners()) {
+            //prevQuery?.removeObserver(this)
+            sharedType.addObserver(this as SharedTypeObserver<unknown>)
+        }
     }
 }
 
@@ -229,6 +260,7 @@ class SharedType<TData = unknown> extends Removable {
     private readonly cache: SharedTypeCache
     private readonly state: SharedTypeState<TData> //eslint-disable-line
     private readonly client: YjsClient //eslint-disable-line
+    private readonly map: Y.Map<TData>
 
     constructor(config: SharedTypeConfig<TData>) {
         super()
@@ -243,6 +275,23 @@ class SharedType<TData = unknown> extends Removable {
             dataUpdateCount: 0,
             dataUpdatedAt: -1,
         }
+
+        this.map = this.client.doc.getMap<TData>(this.path.join(''))
+        this.map.observe(this.onUpdate)
+    }
+
+    private onUpdate(event: Y.YMapEvent<TData>) {
+        console.log('updoot', event)
+        this.state.data = this.map.toJSON() as TData
+        this.cache.notify({
+            type: 'updated',
+            sharedType: this as SharedType<unknown>,
+            action: 'hi',
+        })
+    }
+
+    setState(key: keyof TData & string, newValue: TData[typeof key]) {
+        this.map.set(key, newValue as any) //eslint-disable-line
     }
 
     addObserver(observer1: SharedTypeObserver<unknown>): void {
