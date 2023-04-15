@@ -1,24 +1,26 @@
-import React, { useState } from 'react'
+import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { CommunalStateProvider, useCommunalState } from './communal-state'
 
-function CommunalCount() {
-    const [state] = useCommunalState<{ count: number }>(['count'])
-
-    return <p>{state?.count}</p>
+function CountButton() {
+    const [state, setState] = useCommunalState<{ count: number }>(['count'])
+    return (
+        <button onClick={() => setState((s) => ({ count: (s?.count ?? 0) + 1 }))}>
+            count is {state?.count}
+        </button>
+    )
 }
 
 function App() {
-    const [count, setCount] = useState(0)
-
     return (
         <CommunalStateProvider roomName="test-room" port={1234}>
             <h1>UseCommunalState</h1>
-            <button onClick={() => setCount((count) => count + 1)}>count is {count}</button>
+            <CountButton />
+            <CountButton />
+            <CountButton />
             <p>
                 Edit <code>src/App.tsx</code> and save to test HMR
             </p>
-            <CommunalCount />
         </CommunalStateProvider>
     )
 }

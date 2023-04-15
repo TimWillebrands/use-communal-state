@@ -115,7 +115,7 @@ class SharedTypeCache extends Subscribable<SharedTypeCacheListener> {
         let sharedType = this.get<TData>(sharedTypeHash)
 
         if (!sharedType) {
-            sharedType = new SharedType({
+            sharedType = new SharedType<TData>({
                 client,
                 cache: this,
                 path: sharedTypeKey,
@@ -168,7 +168,7 @@ class SharedTypeCache extends Subscribable<SharedTypeCacheListener> {
     }
 }
 
-type SharedTypeObserverListener<TData> = (result: { data: TData }) => void
+type SharedTypeObserverListener<TData> = (result: { data?: TData }) => void
 
 export class SharedTypeObserver<TData = unknown> extends Subscribable<
     SharedTypeObserverListener<TData>
@@ -202,12 +202,22 @@ export class SharedTypeObserver<TData = unknown> extends Subscribable<
 
     protected onUnsubscribe(): void {
         if (!this.listeners.length) {
-            // this.destroy()
+            this.destroy()
         }
+    }
+
+    destroy(): void {
+        this.listeners = []
+        this.sharedType.removeObserver(this as SharedTypeObserver<unknown>)
     }
 
     getCurrentResult() {
         return this.result
+        // eturn this.sharedType.state.data
+    }
+
+    set(newValue: TData | SetValue<TData>) {
+        this.sharedType.set(newValue)
     }
 
     setOptions(options: SharedTypeOptions) {
@@ -230,10 +240,19 @@ export class SharedTypeObserver<TData = unknown> extends Subscribable<
             sharedType.addObserver(this as SharedTypeObserver<unknown>)
         }
     }
+
+    onUpdate(): void {
+        this.result = { ...this.sharedType.state.data } as TData
+        notifyManager.batch(() => {
+            this.listeners.forEach((observer) => {
+                observer(this.sharedType.state)
+            })
+        })
+    }
 }
 
 export interface SharedTypeState<TData = unknown /*, TError = unknown*/> {
-    data: TData | undefined
+    data?: TData
     dataUpdateCount: number
     dataUpdatedAt: number
     // error: TError | null
@@ -252,13 +271,15 @@ interface SharedTypeConfig<TData> {
     hash?: string
 }
 
-class SharedType<TData = unknown> extends Removable {
+type SetValue<TData = object> = (old?: TData) => TData
+
+class SharedType<TData = object> extends Removable {
     public readonly path: Path
     public readonly hash: string
+    public readonly state: SharedTypeState<TData> //eslint-disable-line
 
     private observers: SharedTypeObserver<TData>[]
     private readonly cache: SharedTypeCache
-    private readonly state: SharedTypeState<TData> //eslint-disable-line
     private readonly client: YjsClient //eslint-disable-line
     private readonly map: Y.Map<TData>
 
@@ -277,21 +298,47 @@ class SharedType<TData = unknown> extends Removable {
         }
 
         this.map = this.client.doc.getMap<TData>(this.path.join(''))
-        this.map.observe(this.onUpdate)
+        this.map.observe(this.onUpdate.bind(this))
     }
 
     private onUpdate(event: Y.YMapEvent<TData>) {
-        console.log('updoot', event)
-        this.state.data = this.map.toJSON() as TData
-        this.cache.notify({
-            type: 'updated',
-            sharedType: this as SharedType<unknown>,
-            action: 'hi',
+        this.state.dataUpdatedAt = Date.now()
+        this.state.dataUpdateCount++
+
+        // console.log('EVENT', event)
+        // event.keysChanged.forEach((key) => console.log('KEY', key))
+        for (const key of event.keysChanged) {
+            this.state.data ??= {} as TData
+            const val = this.map.get(key)
+            //Object.defineProperty(this.state.data, key, this.map.get(key) ?? '')
+            ;(this.state.data as any)[key] = val //eslint-disable-line
+        }
+
+        notifyManager.batch(() => {
+            this.observers.forEach((observer) => {
+                observer.onUpdate()
+            })
+
+            this.cache.notify({
+                type: 'updated',
+                sharedType: this as SharedType<unknown>,
+                action: 'hi',
+            })
         })
     }
 
-    setState(key: keyof TData & string, newValue: TData[typeof key]) {
-        this.map.set(key, newValue as any) //eslint-disable-line
+    set(newValue: TData | SetValue<TData>) {
+        const value =
+            typeof newValue === 'function'
+                ? ((newValue as SetValue<TData>)(this.state.data) as TData)
+                : (newValue as TData)
+
+        for (const key in value) {
+            if (this.state.data && this.state.data[key] === value) {
+                continue
+            }
+            this.map.set(key, value[key] as TData)
+        }
     }
 
     addObserver(observer1: SharedTypeObserver<unknown>): void {

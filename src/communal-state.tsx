@@ -1,4 +1,12 @@
-import { useState, ReactNode, useContext, useMemo, useSyncExternalStore, useCallback } from 'react'
+import {
+    useState,
+    ReactNode,
+    useContext,
+    useMemo,
+    useSyncExternalStore,
+    useCallback,
+    useEffect,
+} from 'react'
 import { createContext } from 'react'
 import { notifyManager } from './notificationManager'
 import { Path } from './utilsAndTypes'
@@ -24,8 +32,9 @@ export function useCommunalState<S>(path: Path) {
     if (client === undefined) throw 'No communalstateprovider found!'
 
     const [observer] = useState(() => new SharedTypeObserver<S>(client, { path: path }))
+    const setState = useMemo(() => observer.set.bind(observer), [observer])
 
-    const result = useSyncExternalStore(
+    useSyncExternalStore(
         useCallback(
             (onStoreChange) => observer.subscribe(notifyManager.batchCalls(onStoreChange)),
             [observer],
@@ -34,5 +43,11 @@ export function useCommunalState<S>(path: Path) {
         () => observer.getCurrentResult(),
     )
 
-    return [result, () => console.log('hi')] as const
+    useEffect(() => {
+        // Do not notify on updates because of changes in the options because
+        // these changes should already be reflected in the optimistic result.
+        observer.setOptions({ path })
+    }, [path, observer])
+
+    return [observer.getCurrentResult(), setState] as const
 }
