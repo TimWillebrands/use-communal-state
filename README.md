@@ -1,7 +1,7 @@
 # use-communal-state
 
 
-An exploration trying to merge the react-query syntax with a networking layer based on yjs. Synchronising state across multiple clients without a specialised backend. 
+An exploration trying to marry the react-query caching/state-management style with a networking layer based on yjs. Synchronising state across multiple clients without a specialised backend. 
 
 Allowing a style/syntax like this:
 
