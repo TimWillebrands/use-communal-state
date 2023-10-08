@@ -1,7 +1,7 @@
 # use-communal-state
 
 
-An exploration trying to marry the react-query caching/state-management style with a networking layer based on yjs. Synchronising state across multiple clients without a specialised backend. 
+An exploration trying to marry the tanner-query _(formerly react-query)_ caching/state-management style with a networking layer based on yjs. Synchronising state across multiple clients without a specialised backend but not creating multiple connections/observers for the same data points.
 
 Allowing a style/syntax like this:
 
